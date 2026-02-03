@@ -1,5 +1,8 @@
 body{
     background-color: aliceblue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
@@ -11,8 +14,6 @@ body{
     width: 330px;
     height: 650px;
     background-color: black;
-    justify-self: center;
-    align-self: center;
     border-radius: 50px;
     border:14px solid #1c1c1e;
     box-shadow:
