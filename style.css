@@ -1,0 +1,86 @@
+body{
+    background-color: aliceblue;
+}
+
+
+
+
+
+.main-container{
+    display: flex;
+    width: 330px;
+    height: 650px;
+    background-color: black;
+    justify-self: center;
+    align-self: center;
+    border-radius: 50px;
+    border:14px solid #1c1c1e;
+    box-shadow:
+     0 40px 100px rgba(0, 0, 0, 0.5),
+     inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+    flex-direction: column;
+    justify-content: end;
+    
+}
+.display-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-right: 15px;
+
+}
+.previous-operand{
+    color: gray;
+    font-size: 23px;
+}
+.current-operand{
+    color: white;
+    font-size: 60px;
+}
+
+
+.buttons-container{
+    
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    height: 390px;
+    align-self: flex-end;
+    margin-bottom: 50px;
+    gap: 4px;
+    flex-shrink: 0;
+    flex-grow: 0;
+
+}
+.calc-button-one{
+    width: 75px;
+    height: 75px;
+    border-radius: 100%;
+    background-color: rgb(100, 100, 100);
+    color: white;
+    font-size: 30px;
+    
+
+}
+.calc-button-two{
+    width: 75px;
+    height: 75px;
+    border-radius: 100%;
+    background-color: rgb(20, 15, 83);
+    color: white;
+    font-size: 30px;
+
+
+}
+.calc-button-three  {
+    width: 75px;
+    height: 75px;
+    border-radius: 100%;
+    background-color: rgb(37, 37, 37);
+    color: white;
+    font-size: 30px;
+
+
+}
