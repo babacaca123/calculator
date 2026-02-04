@@ -36,6 +36,7 @@ buttons.forEach(button => {
             if (allInputs.length === 0) {
                 return;
             }
+            // prevents deleting when there is nothing to delete
 
             display.textContent = display.textContent.slice(0, -1);
             allInputs.pop();
@@ -44,6 +45,7 @@ buttons.forEach(button => {
                 decimalAdded = false;
 
             }
+            // if decimal was deleted, allow adding another decimal
 
             if (allInputs.length === 0) {
                 allInputs = [];
@@ -52,13 +54,20 @@ buttons.forEach(button => {
                 isStartingNum = true;
                 return;
             }
+            // if all inputs is empty after deletion, reset everything
+
+
             console.log(allInputs.length);
-            
+            if (operators.includes(allInputs[allInputs.length -1])) {
+                isStartingNum = true;
+            }
+            // if last displayed is an operator, set isStartingNum to true
+
             return;
 
         }
         // delete button logic
-        // MAKE SURE TO ADD A CHECK IF LAST DISPLAYED IS A OPERATOR TO SET isStartingNum TO TRUE
+
 
 
         
@@ -111,31 +120,34 @@ buttons.forEach(button => {
             if (lastInput === '0' && isStartingNum) {
                 return;
             }
+
+            //prevents first input being 0 
+
             if (display.textContent === '0'){
                 display.textContent = lastInput;
                 isStartingNum = false;
             }
+
+            // replaces initial 0 with first number 1-9 input
+
             else if (isStartingNum) {
                 display.textContent += lastInput;
                 isStartingNum = false;
             }
+
+            // after an operator, allows all numbers to be added
+
             else {
                 display.textContent += lastInput;
             }
+
+            // all other number inputs
 
             allInputs.push(lastInput);
 
 
         }
-        // numbers logic:
-
-            // replaces initial 0 with first number 1-9 input
-
-            // ensures that 0 can be first input if followed by an operator
-            
-            //prevents multiple leading zeros 
-
-            // and after that all numbers can be added
+        // numbers logic
 
 
 
