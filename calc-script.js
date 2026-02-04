@@ -15,8 +15,10 @@ let decimalAdded = false;
 
 buttons.forEach(button => {
     button.addEventListener('click', () => {
-        lastInput = button.textContent; 
 
+
+        lastInput = button.textContent; 
+        // lastInput is the value of the button that was clicked
 
         if (button.id === 'Ac-btn') {
             allInputs = [];
@@ -26,16 +28,40 @@ buttons.forEach(button => {
             decimalAdded = false;
             return;
         }
-
         // AC button logic
+        
 
         if (button.id === 'delete-btn') {
             
+            if (allInputs.length === 0) {
+                return;
+            }
+
+            display.textContent = display.textContent.slice(0, -1);
+            allInputs.pop();
+
+            if (!allInputs.includes('.')) {
+                decimalAdded = false;
+
+            }
+
+            if (allInputs.length === 0) {
+                allInputs = [];
+                lastInput = '';
+                display.textContent = '0';
+                isStartingNum = true;
+                return;
+            }
+            console.log(allInputs.length);
+            
+            return;
+
         }
+        // delete button logic
+        // MAKE SURE TO ADD A CHECK IF LAST DISPLAYED IS A OPERATOR TO SET isStartingNum TO TRUE
 
 
-
-        // decimal button logic
+        
         
         if (button.id === 'decimal-btn') {
             if (decimalAdded) return;
@@ -44,7 +70,7 @@ buttons.forEach(button => {
             isStartingNum = false;
             
         }
-
+        // decimal button logic
 
 
 
@@ -56,7 +82,7 @@ buttons.forEach(button => {
         
         
         
-        // display the button text on the calculator display
+        
           
         if (operators.includes(lastInput)) {
             console.log('Last input was an operator');
@@ -72,6 +98,7 @@ buttons.forEach(button => {
             allInputs.push(lastInput);
             // prevents number input after operator input
         }
+        
         // prevents entering two operators in a row
 
         
@@ -100,33 +127,17 @@ buttons.forEach(button => {
 
 
         }
+        // numbers logic:
 
+            // replaces initial 0 with first number 1-9 input
 
-
-
-        // if (isStartingNum && lastInput === '0') {
-        //     return;
-        // }
-        // else if (numbers.includes(lastInput) && isStartingNum && allInputs.length === 1) {
-        //     isStartingNum = false;
-        //     display.textContent = lastInput;
-        // }
-        // else if (!isStartingNum && allInputs.length > 1){
-        //     display.textContent += lastInput;
-        //     isStartingNum = false;
-        // }
-        // else if(isStartingNum && allInputs.length > 1){
-        //     display.textContent += lastInput;
-        //     isStartingNum = false;
-        // }
-        
-
-        
-            // replaces initial 0 with first number input
-
-            // ensures that 0 can be first input if followed by an operator;
+            // ensures that 0 can be first input if followed by an operator
+            
+            //prevents multiple leading zeros 
 
             // and after that all numbers can be added
+
+
 
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
