@@ -36,7 +36,7 @@ body{
     font-size: 23px;
 }
 .current-operand{
-    color: white;
+    color: rgb(255, 255, 255);
     font-size: 60px;
 }
 
