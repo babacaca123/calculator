@@ -8,9 +8,13 @@ let operators = ['+', '-', '×', '÷', '%','='];
 let numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 let funcBtns = ['AC', '⌫'];
 let plusMinusBtn = '±';
+let decimal = ".";
+let negativeSign = "-"
 let isStartingNum = true;
 let notNegative = true;
 let firstIntIndexes = [];
+
+
     
 
 let decimalAdded = false;
@@ -30,6 +34,7 @@ buttons.forEach(button => {
             isStartingNum = true;
             decimalAdded = false;
             firstIntIndexes = [];
+            notNegative = true;
             return;
         }
 
@@ -44,11 +49,24 @@ buttons.forEach(button => {
 
         if (button.id === 'delete-btn') {
 
+            if (!allInputs[firstIntIndexes[firstIntIndexes.length -1]]){
+                firstIntIndexes.pop(firstIntIndexes[firstIntIndexes.length -1]);
+                isStartingNum = true;
 
-            if (operators.includes(allInputs[allInputs.length -1])) {
-                isStartingNum = false;
             }
-            // if last displayed that was deleted is an operator, set isStartingNum to true
+            // removes firstInt from the index if it doesnt exist
+
+            
+            if (operators.includes(allInputs[allInputs.length -1])) {
+                console.log("minus index",firstIntIndexes[firstIntIndexes.length -1] - 1)
+                isStartingNum = false;
+                console.log("operator deleted check this part of all inputs : ", allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]],allInputs.length -2))
+                if(allInputs[firstIntIndexes[firstIntIndexes.length -1] - 1] === "-"){
+                    notNegative = false;
+                }
+            }   
+            // if last displayed that was deleted is an operator, set isStartingNum to false 
+            
 
             
             
@@ -60,18 +78,32 @@ buttons.forEach(button => {
             display.textContent = display.textContent.slice(0, -1);
             allInputs.pop();
 
+            console.log("index before first index: ", firstIntIndexes[firstIntIndexes.length -1] - 1)
+            console.log("index before latest first index: ",allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]] - 1))
 
-            if (!allInputs[firstIntIndexes[firstIntIndexes.length -1]]){
-                firstIntIndexes.pop(firstIntIndexes[firstIntIndexes.length -1]);
+            if (!allInputs.some(item => operators.includes(item)))
+            {
+                // if there are no operators so far
+                console.log("there are no operators in allinputs")
+                if(allInputs.includes(decimal)){
+                    console.log("decimal ddetected")
+                    decimalAdded = true;
+                }
+                // check for decimal
 
             }
-
-
-            if (!allInputs.includes('.')) {
-                decimalAdded = false;
-
+            else if (allInputs.some(item => operators.includes(item))){
+                if(allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]] - 1).includes(decimal)){
+                    console.log("decimal ddetected")
+                    decimalAdded = true;
+                }
+                // if there are operators check until the last starting number
             }
-            // if decimal was deleted, allow adding another decimal
+ 
+
+
+            
+
 
             if (allInputs.length === 0) {
                 reset();
@@ -89,10 +121,12 @@ buttons.forEach(button => {
         
         
         if (button.id === 'decimal-btn') {
+            console.log("decimal ddetected")
             if (decimalAdded) return;
             display.textContent += lastInput;
             decimalAdded = true;
             isStartingNum = false;
+            allInputs.push(lastInput);
             
         }
         // decimal button logic
@@ -103,31 +137,51 @@ buttons.forEach(button => {
         if (operators.includes(lastInput)) {
             decimalAdded = false;
         }
+
         // decimals can only be added once per number
 
 
 
         
         if (lastInput === plusMinusBtn) {
-            
-                if (notNegative && !isStartingNum) {
+            // add: if number before last first int is -, notnegative is false
+            // i already did this at delete
+
+                
+                if(!notNegative){
+
+                    
+                    if(firstIntIndexes[firstIntIndexes.length -1] === 1){
+                        console.log("first of all inputs is ", allInputs[0])
+                        display.textContent = display.textContent.slice(1);
+                        allInputs.shift();
+                        notNegative = !notNegative;
+                        firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] - 1;
+                    }
+                    else{
+                        console.log("slice at " , firstIntIndexes[firstIntIndexes.length -1])
+                        display.textContent = display.textContent.slice(0, firstIntIndexes[firstIntIndexes.length -1] - 1) + display.textContent.slice(firstIntIndexes[firstIntIndexes.length -1] - 1 + 1);
+                        allInputs.splice(firstIntIndexes[firstIntIndexes.length -1] - 1, 1);
+                        firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] - 1;
+                        notNegative = !notNegative;
+                    }
+                }
+                else if (notNegative && !isStartingNum) {
                     if(!allInputs.some(input => operators.includes(input))){
                         display.textContent = "-" + display.textContent;
                         allInputs.unshift("-");
                         notNegative = !notNegative;
+                        firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] + 1;
                     }
-                if (notNegative){
+
+                else if (notNegative){
                         display.textContent = display.textContent.slice(0, firstIntIndexes[firstIntIndexes.length -1]) + "-" + display.textContent.slice(firstIntIndexes[firstIntIndexes.length -1]);
                         allInputs.splice(firstIntIndexes[firstIntIndexes.length -1], 0,"-")
                         notNegative = !notNegative;
+                        firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] + 1;
                     }
-                }
-                if(!notNegative){
-
-                }
-
             }
-
+        }
         
         
         
@@ -136,6 +190,7 @@ buttons.forEach(button => {
         if (operators.includes(lastInput)) {
 
             isStartingNum = true;
+            notNegative = true;
 
             if (operators.includes(allInputs[allInputs.length -1]) ) {
 
@@ -203,5 +258,6 @@ buttons.forEach(button => {
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
         console.log("all first int indexes ", firstIntIndexes);
+        console.log("current number is not negative", notNegative)
     });
 });
