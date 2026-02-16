@@ -62,7 +62,7 @@ buttons.forEach(button => {
             return allInputs[start] === negativeSign;
         }
         function replaceMinusesWithPlus(){
-            
+
         }
 
 
@@ -301,7 +301,7 @@ buttons.forEach(button => {
 
 
         if(numbers.includes(lastInput)) {
-            if (lastInput === '0' && isStartingNum) {
+            if (lastInput === '0' && isStartingNewNum()) {
                 return;
             }
 
@@ -311,17 +311,17 @@ buttons.forEach(button => {
 
             if (display.textContent === '0'){
                 display.textContent = lastInput;
-                isStartingNum = false;
-                firstIntIndexes.push(allInputs.length -1);
+                // isStartingNum = false;
+                // firstIntIndexes.push(allInputs.length -1);
             }
 
             // replaces initial 0 with first number 1-9 input
 
-            else if (isStartingNum) {
+            else if (isStartingNewNum()) {
                 
                 display.textContent += lastInput;
-                isStartingNum = false;
-                firstIntIndexes.push(allInputs.length -1);  
+                // isStartingNum = false;
+                // firstIntIndexes.push(allInputs.length -1);  
             }
 
             // after an operator, allows all numbers to be added
@@ -339,13 +339,11 @@ buttons.forEach(button => {
         // numbers logic
 
 
-        // ADD IF RESULT IS NEGATIVE , is NEGATIVE = TRUE !!MUST BE BEFORE +- LOGIC
+
         // add if any num button is pressed, decimal or plusminus, ac -> C
 
 
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
-        console.log("all first int indexes ", firstIntIndexes);
-        console.log("current number is not negative", notNegative)
     });
 });
