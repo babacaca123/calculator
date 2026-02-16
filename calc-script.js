@@ -27,8 +27,11 @@ buttons.forEach(button => {
 
 
         function getCurrentNumberStartIndex(){
+
             for (let i = allInputs.length - 1; i >= 0; i --){
+
                 if (allInputs[i] === negativeSign){
+
                     if (numbers.includes(allInputs[i -1])){
                         return i + 1;
                     }
@@ -41,17 +44,25 @@ buttons.forEach(button => {
             return 0;
         }
 
+        // counting from the end, if the current index is an operator or minus (minus with a number before it)
+        // return the index after the operator,
+        // if no operators, return 0
+
+
+
         function isStartingNewNum(){
             if (allInputs.length === 0) return true;
 
             const start = getCurrentNumberStartIndex();
             const current = allInputs.slice(start);
 
-            if (current.length === 0) return true;
-            if (current.length === 1 && current[0] === negativeSign) return true;
-        
+            if (current.length === 0) return true;        
             return false;
         }
+        // if all inputs is 0 long or if the current number is 0 long 
+        // new num is starting
+
+        
 
         function currentNumHasDecimal(){
             const start = getCurrentNumberStartIndex();
@@ -61,9 +72,13 @@ buttons.forEach(button => {
             const start = getCurrentNumberStartIndex();
             return allInputs[start] === negativeSign;
         }
+        // if the current number includes decimal / negative sign, return true
+
+
         function replaceMinusesWithPlus(){
 
         }
+        // replaces two minuses in a row with a plus
 
 
         lastInput = button.textContent; 
@@ -73,12 +88,10 @@ buttons.forEach(button => {
             allInputs = [];
             lastInput = '';
             display.textContent = '0';
-            isStartingNum = true;
-            decimalAdded = false;
-            firstIntIndexes = [];
-            notNegative = true;
             return;
         }
+
+
 
         if (button.id === 'Ac-btn') {
            reset();
@@ -91,25 +104,6 @@ buttons.forEach(button => {
 
         if (button.id === 'delete-btn') {
 
-            // if (!allInputs[firstIntIndexes[firstIntIndexes.length -1]]){
-            //     firstIntIndexes.pop(firstIntIndexes[firstIntIndexes.length -1]);
-            //     isStartingNum = true;
-
-            // }
-            // removes firstInt from the index if it doesnt exist
-
-            
-            // if (operators.includes(last)) {
-                
-            //     isStartingNum = false;
-            //     console.log("operator deleted check this part of all inputs : ", allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]],allInputs.length -2))
-            //     if(allInputs[firstIntIndexes[firstIntIndexes.length -1] - 1] === "-"){
-            //         notNegative = false;
-            //     }
-            // }   
-            // if last displayed that was deleted is an operator, set isStartingNum to false 
-            
-
             
             
             if (allInputs.length === 0) {
@@ -119,32 +113,6 @@ buttons.forEach(button => {
 
             display.textContent = display.textContent.slice(0, -1);
             allInputs.pop();
-
-            // console.log("index before first index: ", firstIntIndexes[firstIntIndexes.length -1] - 1)
-            // console.log("index before latest first index: ",allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]] - 1))
-
-            // if (!allInputs.some(item => operators.includes(item)))
-            // {
-            //     // if there are no operators so far
-            //     console.log("there are no operators in allinputs")
-            //     if(allInputs.includes(decimal)){
-            //         console.log("decimal ddetected")
-            //         decimalAdded = true;
-            //     }
-            //     // check for decimal
-
-            // }
-            // else if (allInputs.some(item => operators.includes(item))){
-            //     if(allInputs.slice([firstIntIndexes[firstIntIndexes.length -1]] - 1).includes(decimal)){
-            //         console.log("decimal ddetected")
-            //         decimalAdded = true;
-            //     }
-            //     // if there are operators check until the last starting number
-            // }
- 
-
-
-            
 
 
             if (allInputs.length === 0) {
@@ -172,25 +140,10 @@ buttons.forEach(button => {
             }
 
 
-            // console.log("decimal ddetected")
-
-            // if (decimalAdded) return;
-            // display.textContent += lastInput;
-            // decimalAdded = true;
-            // isStartingNum = false;
-            // allInputs.push(lastInput);
             
         }
         // decimal button logic
 
-
-
-
-        // if (operators.includes(lastInput)) {
-        //     decimalAdded = false;
-        // }
-
-        // decimals can only be added once per number
 
 
 
@@ -211,7 +164,7 @@ buttons.forEach(button => {
                     display.textContent.slice(startIndex + 1);
                 
             }
-
+            // if current num is negtive, take away the minus
 
 
             else{
@@ -223,51 +176,8 @@ buttons.forEach(button => {
                     negativeSign + 
                     display.textContent.slice(startIndex);
             }
+            // if current num isnt negtive, add the minus
 
-
-
-
-
-
-
-
-
-
-
-                
-                // if(!notNegative){
-
-                    
-                //     if(firstIntIndexes[firstIntIndexes.length -1] === 1){
-                //         console.log("first of all inputs is ", allInputs[0])
-                //         display.textContent = display.textContent.slice(1);
-                //         allInputs.shift();
-                //         notNegative = !notNegative;
-                //         firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] - 1;
-                //     }
-                //     else{
-                //         console.log("slice at " , firstIntIndexes[firstIntIndexes.length -1])
-                //         display.textContent = display.textContent.slice(0, firstIntIndexes[firstIntIndexes.length -1] - 1) + display.textContent.slice(firstIntIndexes[firstIntIndexes.length -1] - 1 + 1);
-                //         allInputs.splice(firstIntIndexes[firstIntIndexes.length -1] - 1, 1);
-                //         firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] - 1;
-                //         notNegative = !notNegative;
-                //     }
-                // }
-                // else if (notNegative && !isStartingNum) {
-                //     if(!allInputs.some(input => operators.includes(input))){
-                //         display.textContent = "-" + display.textContent;
-                //         allInputs.unshift("-");
-                //         notNegative = !notNegative;
-                //         firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] + 1;
-                //     }
-
-                // else if (notNegative){
-                //         display.textContent = display.textContent.slice(0, firstIntIndexes[firstIntIndexes.length -1]) + "-" + display.textContent.slice(firstIntIndexes[firstIntIndexes.length -1]);
-                //         allInputs.splice(firstIntIndexes[firstIntIndexes.length -1], 0,"-")
-                //         notNegative = !notNegative;
-                //         firstIntIndexes[firstIntIndexes.length -1] = firstIntIndexes[firstIntIndexes.length -1] + 1;
-                //     }
-            // }
         }
         
         
@@ -276,9 +186,18 @@ buttons.forEach(button => {
           
         if (operators.includes(lastInput) || lastInput === negativeSign) {
 
-            // isStartingNum = true;
-            // notNegative = true;
             const last = allInputs[allInputs.length - 1];
+            let secondLast = null;
+
+            if (allInputs.length >= 2) {
+                secondLast = allInputs[allInputs.length - 2];
+            }
+  
+            if (last === negativeSign && operators.includes(secondLast)){
+                return;
+            }
+            // prevents an operator replacing a negative sign
+
 
             if (operators.includes(last) || last === negativeSign ) {
 
@@ -311,8 +230,7 @@ buttons.forEach(button => {
 
             if (display.textContent === '0'){
                 display.textContent = lastInput;
-                // isStartingNum = false;
-                // firstIntIndexes.push(allInputs.length -1);
+
             }
 
             // replaces initial 0 with first number 1-9 input
@@ -320,8 +238,6 @@ buttons.forEach(button => {
             else if (isStartingNewNum()) {
                 
                 display.textContent += lastInput;
-                // isStartingNum = false;
-                // firstIntIndexes.push(allInputs.length -1);  
             }
 
             // after an operator, allows all numbers to be added
@@ -332,15 +248,10 @@ buttons.forEach(button => {
 
             // all other number inputs
 
-            
-
 
         }
         // numbers logic
 
-
-
-        // add if any num button is pressed, decimal or plusminus, ac -> C
 
 
         console.log('Button clicked (last input):', lastInput);
