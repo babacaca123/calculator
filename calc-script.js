@@ -2,6 +2,7 @@
 
 const display = document.querySelector('.current-operand');
 const buttons = document.querySelectorAll('.buttons-container button');
+
 let lastInput = '';
 let allInputs = []; 
 const operators = ['+', '×', '÷', '%','='];
@@ -27,6 +28,11 @@ buttons.forEach(button => {
 
         function getCurrentNumberStartIndex(){
             for (let i = allInputs.length - 1; i >= 0; i --){
+                if (allInputs[i] === negativeSign){
+                    if (numbers.includes(allInputs[i -1])){
+                        return i + 1;
+                    }
+                }
                 if (operators.includes(allInputs[i])){
                     return i + 1;
                 }
@@ -54,6 +60,9 @@ buttons.forEach(button => {
         function currentNumIsNegative(){
             const start = getCurrentNumberStartIndex();
             return allInputs[start] === negativeSign;
+        }
+        function replaceMinusesWithPlus(){
+            
         }
 
 
@@ -265,13 +274,13 @@ buttons.forEach(button => {
         
         
           
-        if (operators.includes(lastInput)) {
+        if (operators.includes(lastInput) || lastInput === negativeSign) {
 
             // isStartingNum = true;
             // notNegative = true;
             const last = allInputs[allInputs.length - 1];
 
-            if (operators.includes(last) ) {
+            if (operators.includes(last) || last === negativeSign ) {
 
                 display.textContent = display.textContent.slice(0, -1);
                 allInputs.pop();
@@ -279,7 +288,7 @@ buttons.forEach(button => {
             }
             display.textContent += lastInput;
             allInputs.push(lastInput);
-            // prevents number input after operator input
+            
         }
         
         // prevents entering two operators in a row
