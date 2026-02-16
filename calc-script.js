@@ -11,6 +11,7 @@ const funcBtns = ['AC', '⌫'];
 const plusMinusBtn = '±';
 const decimal = ".";
 const negativeSign = "-"
+const plusSign = "+";
 let isStartingNum = true;
 let notNegative = true;
 let firstIntIndexes = [];
@@ -75,9 +76,29 @@ buttons.forEach(button => {
         // if the current number includes decimal / negative sign, return true
 
 
+
+
         function replaceMinusesWithPlus(){
 
+            for (let i = allInputs.length - 1; i >= 0; i --){
+
+                if (allInputs[i] === negativeSign){
+
+                    if ((allInputs[i -1]) === negativeSign){
+                        
+                        allInputs.splice(i -1, 2, plusSign)
+                        
+                        display.textContent = 
+                            display.textContent.slice(0, i -1) + 
+                            plusSign + 
+                            display.textContent.slice(i + 1);
+
+                        console.log(allInputs)
+                    }
+                }
+
         }
+         }
         // replaces two minuses in a row with a plus
 
 
@@ -149,6 +170,8 @@ buttons.forEach(button => {
 
         
         if (lastInput === plusMinusBtn) {
+           
+
 
             if(isStartingNewNum()) return;
 
@@ -178,7 +201,9 @@ buttons.forEach(button => {
             }
             // if current num isnt negtive, add the minus
 
+            replaceMinusesWithPlus();
         }
+        // plus minus logic
         
         
         
@@ -189,10 +214,12 @@ buttons.forEach(button => {
             const last = allInputs[allInputs.length - 1];
             let secondLast = null;
 
+
             if (allInputs.length >= 2) {
                 secondLast = allInputs[allInputs.length - 2];
             }
   
+
             if (last === negativeSign && operators.includes(secondLast)){
                 return;
             }
@@ -205,12 +232,16 @@ buttons.forEach(button => {
                 allInputs.pop();
                 
             }
+
+             // prevents entering two operators in a row
+
+
             display.textContent += lastInput;
             allInputs.push(lastInput);
             
         }
         
-        // prevents entering two operators in a row
+     
 
         // operators logic
         
