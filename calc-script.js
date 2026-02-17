@@ -12,6 +12,7 @@ const plusMinusBtn = '±';
 const decimal = ".";
 const negativeSign = "-"
 const plusSign = "+";
+const zero = '0';
 let isStartingNum = true;
 let notNegative = true;
 let firstIntIndexes = [];
@@ -108,7 +109,7 @@ buttons.forEach(button => {
         function reset(){
             allInputs = [];
             lastInput = '';
-            display.textContent = '0';
+            display.textContent = zero;
             return;
         }
 
@@ -152,9 +153,20 @@ buttons.forEach(button => {
         
         
         if (button.id === 'decimal-btn') {
+
+            const last = allInputs[allInputs.length - 1];
+
             if (currentNumHasDecimal()){
                 return;
             }
+
+            else if(isStartingNewNum()){
+                allInputs.push(zero)
+                allInputs.push(decimal)
+                display.textContent += zero + decimal;
+            }
+            // if a decima
+            
             else{
                 display.textContent += lastInput;
                 allInputs.push(lastInput);
@@ -251,20 +263,30 @@ buttons.forEach(button => {
 
 
         if(numbers.includes(lastInput)) {
-            if (lastInput === '0' && isStartingNewNum()) {
+
+
+            if (lastInput === zero && isStartingNewNum()) {
                 return;
             }
 
-            allInputs.push(lastInput);
+
 
             //prevents first input being 0 
 
-            if (display.textContent === '0'){
-                display.textContent = lastInput;
+
+            start = getCurrentNumberStartIndex();
+            console.log("start is", start)
+
+
+            if (display.textContent === zero || allInputs[start] === zero){
+
+                display.textContent = display.textContent.slice(0, -1);
+                allInputs.pop()
+                display.textContent += lastInput;
 
             }
 
-            // replaces initial 0 with first number 1-9 input
+            // replaces initial 0 or leading zero with first number 1-9 input
 
             else if (isStartingNewNum()) {
                 
@@ -278,12 +300,14 @@ buttons.forEach(button => {
             }
 
             // all other number inputs
-
+            allInputs.push(lastInput);
 
         }
         // numbers logic
 
+        if (button.id === "equals-btn"){
 
+        }
 
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
