@@ -29,6 +29,9 @@ buttons.forEach(button => {
 
 
 
+        lastInput = button.textContent; 
+        // lastInput is the value of the button that was clicked
+
         function isBinaryMinus(index){
             return(
                 allInputs[index] === negativeSign &&
@@ -67,9 +70,9 @@ buttons.forEach(button => {
 
         // counting from the end, 
         // if the current index is a negative sign, return that index
-        // if the current index is a minus, return  i  + 1 like an operator
-        // if the current index is an operator or minus (minus with a number before it)
+        // if the current index is an operator
         // return the index after the operator,
+        // if the current index is a minus, return  i  + 1 like an operator
         // if no operators, return 0
 
 
@@ -125,6 +128,9 @@ buttons.forEach(button => {
         // replaces two minuses in a row with a plus
 
 
+
+
+
          function preventLeadingZeros(){
 
 
@@ -156,19 +162,50 @@ buttons.forEach(button => {
 
 
 
-        lastInput = button.textContent; 
-        // lastInput is the value of the button that was clicked
-
-
 
 
         function reset(){
             allInputs = ['0'];
             lastInput = '';
             display.textContent = zero;
+            currentNumber = '';
+            tokens = [];
             return;
         }
 
+
+
+        function evaluate(tokens){
+
+
+            for (let i = 0; i < allInputs.length - 1; i ++){
+
+
+                if (isBinaryMinus(i)){
+                    tokens.push(Number(currentNumber));
+                    tokens.push(allInputs[i]);
+                    currentNumber = '';
+                }
+
+
+                else if (operators.includes(allInputs[i])){
+                    tokens.push(Number(currentNumber));
+                    tokens.push(allInputs[i]);
+                    currentNumber = '';
+                }
+
+                else{
+                    currentNumber += allInputs[i];
+                    
+                }
+                
+
+            }
+
+
+
+            
+        }
 
 
 
@@ -389,7 +426,12 @@ buttons.forEach(button => {
 
 
         if (button.id === "equals-btn"){
+            allInputs.pop();
+            display.textContent = display.textContent.slice(0, -1);
 
+            evaluate(tokens);
+            console.log("current number is", currentNumber)
+            console.log("tokens are", tokens)
         }
 
         console.log("start is", getCurrentNumberStartIndex())
