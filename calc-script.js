@@ -15,7 +15,8 @@ const negativeSign = "-"
 const plusSign = "+";
 const zero = '0';
 
-
+let currentNumber = '';
+let tokens = [];
 
 
     
@@ -122,6 +123,37 @@ buttons.forEach(button => {
         }
          }
         // replaces two minuses in a row with a plus
+
+
+         function preventLeadingZeros(){
+
+
+            start = getCurrentNumberStartIndex();
+
+
+            if (display.textContent === zero || 
+
+                (allInputs[start] === zero) && allInputs[start +1] !== decimal ||
+
+                (allInputs[start] === negativeSign) && allInputs[start + 1] === zero &&
+                
+                allInputs[start + 2] !== decimal){
+
+                display.textContent = display.textContent.slice(0, -1);
+                allInputs.pop()
+                display.textContent += lastInput;
+
+                allInputs.push(lastInput);
+                
+                return true;
+
+            }
+
+           return false;
+
+            // replaces initial 0 or leading zero with first number 1-9 input, in the cases 0 or -0
+         }
+
 
 
         lastInput = button.textContent; 
@@ -317,31 +349,19 @@ buttons.forEach(button => {
 
         if(numbers.includes(lastInput)) {
 
-
-            if (lastInput === zero && isStartingNewNum()) {
-                return;
-            }
-
-
-
-            //prevents first input being 0 
-
+            if (preventLeadingZeros()) return;
 
             start = getCurrentNumberStartIndex();
             
 
 
-            if (display.textContent === zero || 
-                (allInputs[start] === zero) && allInputs[start +1] !== decimal ||
-                (allInputs[start] === negativeSign) && allInputs[start + 1] === zero){
-
-                display.textContent = display.textContent.slice(0, -1);
-                allInputs.pop()
-                display.textContent += lastInput;
-
+            if (lastInput === zero && isStartingNewNum()) {
+                return;
             }
 
-            // replaces initial 0 or leading zero with first number 1-9 input, except when 0.X
+            //prevents first input being 0 
+
+            
 
             else if (isStartingNewNum()) {
                 
@@ -351,6 +371,7 @@ buttons.forEach(button => {
             // after an operator, allows all numbers to be added
 
             else {
+          
                 display.textContent += lastInput;
             }
 
