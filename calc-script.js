@@ -4,7 +4,8 @@ const display = document.querySelector('.current-operand');
 const buttons = document.querySelectorAll('.buttons-container button');
 
 let lastInput = '';
-let allInputs = []; 
+let allInputs = ['0']; 
+
 const operators = ['+', '×', '÷', '%','='];
 const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const funcBtns = ['AC', '⌫'];
@@ -13,9 +14,7 @@ const decimal = ".";
 const negativeSign = "-"
 const plusSign = "+";
 const zero = '0';
-let isStartingNum = true;
-let notNegative = true;
-let firstIntIndexes = [];
+
 
 
 
@@ -28,32 +27,54 @@ buttons.forEach(button => {
     button.addEventListener('click', () => {
 
 
+
+        function isBinaryMinus(index){
+            return(
+                allInputs[index] === negativeSign &&
+                index > 0 &&
+                !operators.includes(allInputs[index - 1])
+            );
+        }
+        // returns true if the minus is an operator and not a negative sign
+
+
+
+
         function getCurrentNumberStartIndex(){
 
             for (let i = allInputs.length - 1; i >= 0; i --){
 
-                if (allInputs[i] === negativeSign){
-
-                    if (numbers.includes(allInputs[i -1])){
-                        return i + 1;
-                    }
+                if (allInputs[i] === negativeSign &&
+                    (i === 0 || operators.includes(allInputs[i - 1]))) 
+                    {
+                    return i;
                 }
+                if (isBinaryMinus(i)){
+                    return i + 1;
+                }
+
+
                 if (operators.includes(allInputs[i])){
                     return i + 1;
                 }
+
+                
 
             }
             return 0;
         }
 
-        // counting from the end, if the current index is an operator or minus (minus with a number before it)
+        // counting from the end, 
+        // if the current index is a negative sign, return that index
+        // if the current index is a minus, return  i  + 1 like an operator
+        // if the current index is an operator or minus (minus with a number before it)
         // return the index after the operator,
         // if no operators, return 0
 
 
 
         function isStartingNewNum(){
-            if (allInputs.length === 0) return true;
+            if (allInputs.length === 1 && allInputs[0] === zero) return true;
 
             const start = getCurrentNumberStartIndex();
             const current = allInputs.slice(start);
@@ -106,12 +127,18 @@ buttons.forEach(button => {
         lastInput = button.textContent; 
         // lastInput is the value of the button that was clicked
 
+
+
+
         function reset(){
-            allInputs = [];
+            allInputs = ['0'];
             lastInput = '';
             display.textContent = zero;
             return;
         }
+
+
+
 
 
 
@@ -124,14 +151,20 @@ buttons.forEach(button => {
 
 
 
+
+
+
+
         if (button.id === 'delete-btn') {
 
             
             
             if (allInputs.length === 0) {
+                reset();
                 return;
             }
             // prevents deleting when there is nothing to delete
+            // if all inputs is empty after deletion, reset everything
 
             display.textContent = display.textContent.slice(0, -1);
             allInputs.pop();
@@ -140,7 +173,7 @@ buttons.forEach(button => {
             if (allInputs.length === 0) {
                 reset();
             }
-            // if all inputs is empty after deletion, reset everything
+            
 
 
             return;
@@ -150,22 +183,31 @@ buttons.forEach(button => {
 
 
 
+
+
+
+
+
         
         
         if (button.id === 'decimal-btn') {
 
             const last = allInputs[allInputs.length - 1];
 
-            if (currentNumHasDecimal()){
-                return;
-            }
-
-            else if(isStartingNewNum()){
+            if(isStartingNewNum() && operators.includes(last) || last === negativeSign){
                 allInputs.push(zero)
                 allInputs.push(decimal)
                 display.textContent += zero + decimal;
             }
-            // if a decima
+            // if a decimal is inputed as a new number, add a zero before it
+
+
+
+            else if (currentNumHasDecimal()){
+                return;
+            }
+
+            
             
             else{
                 display.textContent += lastInput;
@@ -180,10 +222,11 @@ buttons.forEach(button => {
 
 
 
+
+
+
         
         if (lastInput === plusMinusBtn) {
-           
-
 
             if(isStartingNewNum()) return;
 
@@ -219,6 +262,11 @@ buttons.forEach(button => {
         
         
         
+
+
+
+
+
         
           
         if (operators.includes(lastInput) || lastInput === negativeSign) {
@@ -262,6 +310,11 @@ buttons.forEach(button => {
         
 
 
+
+
+
+
+
         if(numbers.includes(lastInput)) {
 
 
@@ -275,10 +328,12 @@ buttons.forEach(button => {
 
 
             start = getCurrentNumberStartIndex();
-            console.log("start is", start)
+            
 
 
-            if (display.textContent === zero || allInputs[start] === zero){
+            if (display.textContent === zero || 
+                (allInputs[start] === zero) && allInputs[start +1] !== decimal ||
+                (allInputs[start] === negativeSign) && allInputs[start + 1] === zero){
 
                 display.textContent = display.textContent.slice(0, -1);
                 allInputs.pop()
@@ -286,7 +341,7 @@ buttons.forEach(button => {
 
             }
 
-            // replaces initial 0 or leading zero with first number 1-9 input
+            // replaces initial 0 or leading zero with first number 1-9 input, except when 0.X
 
             else if (isStartingNewNum()) {
                 
@@ -305,10 +360,18 @@ buttons.forEach(button => {
         }
         // numbers logic
 
+
+
+
+
+
+
+
         if (button.id === "equals-btn"){
 
         }
 
+        console.log("start is", getCurrentNumberStartIndex())
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
     });

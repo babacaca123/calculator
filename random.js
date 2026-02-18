@@ -160,3 +160,6 @@ if (
 
             // isStartingNum = true;
             // notNegative = true;
+
+
+            // || (allInputs === negativeSign)
