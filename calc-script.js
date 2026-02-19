@@ -50,6 +50,13 @@ buttons.forEach(button => {
 
         function getCurrentNumberStartIndex(){
 
+              if (allInputs.length === 1) {
+                 return 0;
+              }
+             // If allInputs contains only the result, the current number starts at index 0
+
+
+
             for (let i = allInputs.length - 1; i >= 0; i --){
 
                 if (allInputs[i] === negativeSign &&
@@ -105,6 +112,7 @@ buttons.forEach(button => {
             const start = getCurrentNumberStartIndex();
             return allInputs.slice(start).includes(decimal);
         }
+        
         function currentNumIsNegative(){
             const start = getCurrentNumberStartIndex();
             return allInputs[start] === negativeSign;
@@ -305,6 +313,7 @@ buttons.forEach(button => {
             display.textContent = formatted;
             
             allInputs = [formatted];
+        
             
             
             
@@ -340,23 +349,34 @@ buttons.forEach(button => {
         
 
 
-        if (button.id === "equals-btn"){
+        if (button.id === "equals-btn") {
 
-            if (!allInputs.some(Element => operators.includes(Element))) {
-                return;
-            }
-
-        // ADD BINARY MINUS CASE so that if all inputs doesnt have a binary minus, return
-            else{
-                evaluate(tokens);
-                console.log("all inputs after evaluation", allInputs)
-                equalsPressed = true;
-                tokens = [];
-                currentNumber = '';
-                return;
-            }
             
-                
+            const last = allInputs[allInputs.length - 1];
+            if (operators.includes(last) || last === negativeSign) {
+                console.error("Invalid expression: ends with an operator or incomplete sequence.");
+                return;
+            }
+            // Ensure the last input is not an operator or invalid sequence
+            
+            const hasBinaryMinusOrOperator = allInputs.some((input, index) => 
+                 isBinaryMinus(index) || operators.includes(input)
+                 );
+
+              if (!hasBinaryMinusOrOperator) {
+                    console.error("Invalid expression: no operators or binary minuses in the input.");
+                  return;
+              }
+              // Check if allInputs contains no binary minuses or operators
+
+
+
+            evaluate(tokens);
+            console.log("all inputs after evaluation", allInputs);
+            equalsPressed = true;
+            tokens = [];
+            currentNumber = '';
+            return;
         }
 
         previousDisplay.textContent = null;
@@ -459,10 +479,6 @@ buttons.forEach(button => {
             if(currentNumIsNegative()){
 
                 allInputs.splice(startIndex, 1);
-
-                display.textContent = 
-                    display.textContent.slice(0, startIndex) + 
-                    display.textContent.slice(startIndex + 1);
                 
             }
             // if current num is negtive, take away the minus
@@ -471,15 +487,13 @@ buttons.forEach(button => {
             else{
                 
                 allInputs.splice(startIndex, 0, negativeSign)
-
-                display.textContent = 
-                    display.textContent.slice(0, startIndex) + 
-                    negativeSign + 
-                    display.textContent.slice(startIndex);
             }
             // if current num isnt negtive, add the minus
 
             replaceMinusesWithPlus();
+            display.textContent = allInputs.join('');
+
+            // make the display match all inputs
         }
         // plus minus logic
         
