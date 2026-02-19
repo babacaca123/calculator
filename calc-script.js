@@ -2,6 +2,7 @@
 
 const display = document.querySelector('.current-operand');
 const buttons = document.querySelectorAll('.buttons-container button');
+const previousDisplay = document.querySelector('.previous-operand');
 
 let lastInput = '';
 let allInputs = ['0']; 
@@ -17,20 +18,23 @@ const zero = '0';
 
 let currentNumber = '';
 let tokens = [];
+let result = null;
+let equalsPressed = false;
 
-
-    
-
-let decimalAdded = false;
 
 
 buttons.forEach(button => {
     button.addEventListener('click', () => {
 
 
+        
+            lastInput = button.textContent;
+        
+        // lastInput is the text value of the button that was clicked
 
-        lastInput = button.textContent; 
-        // lastInput is the value of the button that was clicked
+            numberAfterResult();
+
+        // if a number is pressed, replace the reusult 
 
         function isBinaryMinus(index){
             return(
@@ -77,6 +81,9 @@ buttons.forEach(button => {
 
 
 
+
+
+
         function isStartingNewNum(){
             if (allInputs.length === 1 && allInputs[0] === zero) return true;
 
@@ -91,6 +98,9 @@ buttons.forEach(button => {
 
         
 
+
+
+
         function currentNumHasDecimal(){
             const start = getCurrentNumberStartIndex();
             return allInputs.slice(start).includes(decimal);
@@ -100,6 +110,8 @@ buttons.forEach(button => {
             return allInputs[start] === negativeSign;
         }
         // if the current number includes decimal / negative sign, return true
+
+
 
 
 
@@ -126,6 +138,8 @@ buttons.forEach(button => {
         }
          }
         // replaces two minuses in a row with a plus
+
+
 
 
 
@@ -164,31 +178,56 @@ buttons.forEach(button => {
 
 
 
+
+
         function reset(){
             allInputs = ['0'];
             lastInput = '';
             display.textContent = zero;
             currentNumber = '';
             tokens = [];
+            equalsPressed = false;
             return;
         }
+
+
+        function formatResult(num){
+
+            if(isNaN(num) || !isFinite(num)){
+                return "Error";
+            }
+
+
+            const absNum = Math.abs(num);
+
+ 
+             if (absNum >= 1e9 || (absNum > 0 && absNum <= 1e-9)) {
+                return num.toExponential(5).replace("e+", "e");
+            }
+
+            return Number(num).toLocaleString('en-US', {
+                maximumFractionDigits: 10,
+                useGrouping: false
+                } );
+
+        }
+
+        // formats the result to 8 significant figures, removes trailing zeros
+
+
+
 
 
 
         function evaluate(tokens){
 
 
-            for (let i = 0; i < allInputs.length - 1; i ++){
 
 
-                if (isBinaryMinus(i)){
-                    tokens.push(Number(currentNumber));
-                    tokens.push(allInputs[i]);
-                    currentNumber = '';
-                }
+            for (let i = 0; i < allInputs.length; i ++){
 
 
-                else if (operators.includes(allInputs[i])){
+                if (isBinaryMinus(i) || operators.includes(allInputs[i])){
                     tokens.push(Number(currentNumber));
                     tokens.push(allInputs[i]);
                     currentNumber = '';
@@ -198,16 +237,131 @@ buttons.forEach(button => {
                     currentNumber += allInputs[i];
                     
                 }
-                
+            }
 
+            // adds everything from all inputs into tokens, separating numbers and operators, 
+            // accounting for negative signs
+           
+
+
+            if (currentNumber !== '') {
+             tokens.push(Number(currentNumber));
+             currentNumber = ''; }
+
+             previousDisplay.textContent = tokens.join(' ');
+
+            //  shows the result's equation in the previous display
+
+
+             for (let i = 0; i < tokens.length; i ++){
+              
+                
+                if (tokens[i] === '×' || tokens[i] === '÷' || tokens[i] === '%'){
+
+                    const a = tokens[i - 1];
+                    const b = tokens[i + 1];
+                    const operator = tokens[i];
+
+                    if (operator === '×') result = a * b;
+                   
+                    if (operator === '÷') result = a / b;
+
+                    if (operator === '%') result = a % b;
+                    
+
+
+                    tokens.splice(i - 1, 3, result);
+                    i--;
             }
 
 
+             }
 
+
+             for (let i = 0; i < tokens.length; i ++){
+              
+                
+                if (tokens[i] === '+' || tokens[i] === negativeSign){
+
+                    const a = tokens[i - 1];
+                    const b = tokens[i + 1];
+                    const operator = tokens[i];
+
+                    if (operator === '+') result = a + b;
+                   
+                    if (operator === negativeSign) result = a - b;
+
+                    tokens.splice(i - 1, 3, result);
+                    i--;
+            }
+
+
+             } 
+
+            //  operates on tokens according to order of operations, combines the results until one result
+
+             const formatted = formatResult(result);
+
+            display.textContent = formatted;
+            
+            allInputs = [formatted];
+            
+            
+            
             
         }
 
 
+        function numberAfterResult(){
+            if (equalsPressed){
+                if (numbers.includes(lastInput)){
+                    allInputs = [];
+                    display.textContent = '';
+                    equalsPressed = false;
+                }
+                if (lastInput === decimal){
+                    allInputs = [zero, decimal];
+                    display.textContent = zero + decimal;
+                    equalsPressed = false;
+                }
+                if (lastInput === zero){
+                    equalsPressed = false;
+                    reset();
+                }
+                else{
+                    equalsPressed = false;
+                }
+        }
+         }
+        
+
+
+
+        
+
+
+        if (button.id === "equals-btn"){
+
+            if (!allInputs.some(Element => operators.includes(Element))) {
+                return;
+            }
+
+        // ADD BINARY MINUS CASE so that if all inputs doesnt have a binary minus, return
+            else{
+                evaluate(tokens);
+                console.log("all inputs after evaluation", allInputs)
+                equalsPressed = true;
+                tokens = [];
+                currentNumber = '';
+                return;
+            }
+            
+                
+        }
+
+        previousDisplay.textContent = null;
+
+        // resets previous display when any button is clicked after =
 
 
 
@@ -385,6 +539,7 @@ buttons.forEach(button => {
 
 
         if(numbers.includes(lastInput)) {
+            
 
             if (preventLeadingZeros()) return;
 
@@ -424,15 +579,6 @@ buttons.forEach(button => {
 
 
 
-
-        if (button.id === "equals-btn"){
-            allInputs.pop();
-            display.textContent = display.textContent.slice(0, -1);
-
-            evaluate(tokens);
-            console.log("current number is", currentNumber)
-            console.log("tokens are", tokens)
-        }
 
         console.log("start is", getCurrentNumberStartIndex())
         console.log('Button clicked (last input):', lastInput);
