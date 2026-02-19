@@ -112,7 +112,7 @@ buttons.forEach(button => {
             const start = getCurrentNumberStartIndex();
             return allInputs.slice(start).includes(decimal);
         }
-        
+
         function currentNumIsNegative(){
             const start = getCurrentNumberStartIndex();
             return allInputs[start] === negativeSign;
@@ -323,6 +323,7 @@ buttons.forEach(button => {
 
         function numberAfterResult(){
             if (equalsPressed){
+                
                 if (numbers.includes(lastInput)){
                     allInputs = [];
                     display.textContent = '';
@@ -425,7 +426,11 @@ buttons.forEach(button => {
         // delete button logic
 
 
-
+        if (allInputs[0] === "Error"){
+            return;
+        
+        }
+        // if error, only clear/delete works
 
 
 
@@ -507,6 +512,8 @@ buttons.forEach(button => {
         
           
         if (operators.includes(lastInput) || lastInput === negativeSign) {
+
+            
 
             const last = allInputs[allInputs.length - 1];
             let secondLast = null;
