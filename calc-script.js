@@ -205,22 +205,39 @@ buttons.forEach(button => {
                 return "Error";
             }
 
+         
+              const maxSignificantDigits = 10;
 
-            const absNum = Math.abs(num);
+             
+              if (Math.abs(num) >= 1e9 || (Math.abs(num) > 0 && Math.abs(num) <= 1e-9)) {
+                     return num.toExponential(5).replace("e+", "e");
+               }
+                 // Use scientific notation for very large or very small numbers
+             
+                    return Number(num.toPrecision(maxSignificantDigits)).toLocaleString('en-US', {
+                       maximumFractionDigits: 10, // Limit to 10 decimal places
+                       useGrouping: false,       // Disable commas in the raw result
 
- 
-             if (absNum >= 1e9 || (absNum > 0 && absNum <= 1e-9)) {
-                return num.toExponential(5).replace("e+", "e");
-            }
+                        // Round to the maximum number of significant digits
+                 });
 
-            return Number(num).toLocaleString('en-US', {
-                maximumFractionDigits: 10,
-                useGrouping: false
-                } );
+
 
         }
 
         // formats the result to 8 significant figures, removes trailing zeros
+
+        function addCommas(inputArray) {
+            let expression = inputArray.join('');
+
+            return expression.replace(/-?\d+(\.\d+)?/g, function(match) {
+                if (match.includes('.')) {
+                    const [integerPart, decimalPart] = match.split('.');
+                    return `${Number(integerPart).toLocaleString('en-US')}.${decimalPart}`;
+                }
+                return Number(match).toLocaleString('en-US');
+            });
+        }
 
 
 
@@ -256,7 +273,7 @@ buttons.forEach(button => {
              tokens.push(Number(currentNumber));
              currentNumber = ''; }
 
-             previousDisplay.textContent = tokens.join(' ');
+             previousDisplay.textContent = addCommas(tokens);
 
             //  shows the result's equation in the previous display
 
@@ -310,7 +327,7 @@ buttons.forEach(button => {
 
              const formatted = formatResult(result);
 
-            display.textContent = formatted;
+            display.textContent = addCommas([formatted]);
             
             allInputs = [formatted];
         
@@ -577,19 +594,21 @@ buttons.forEach(button => {
             
 
             else if (isStartingNewNum()) {
-                
-                display.textContent += lastInput;
+                allInputs.push(lastInput);
+                display.textContent = addCommas(allInputs);
+                // display.textContent += lastInput;
             }
 
             // after an operator, allows all numbers to be added
 
             else {
-          
-                display.textContent += lastInput;
+                allInputs.push(lastInput);
+                display.textContent = addCommas(allInputs);
+                // display.textContent += lastInput;
             }
 
             // all other number inputs
-            allInputs.push(lastInput);
+            // allInputs.push(lastInput);
 
         }
         // numbers logic
