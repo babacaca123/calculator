@@ -28,16 +28,45 @@ body{
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-end;
+    width: 300px;
     margin-right: 15px;
+    margin-left: 15px;
+    /* overflow-x: auto; */
+    overflow-y: hidden;
+    position: relative;
+    cursor: grab; /* Indicate draggable content */
+    scroll-behavior: smooth; /* Smooth scrolling when dragging */
+    overflow-x: scroll; /* Enable horizontal scrolling with a scrollbar */
+    scrollbar-width: thin; /* Optional: Make the scrollbar thinner */
 
 }
+
+.current-operand, .previous-operand {
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    cursor: grab; /* Indicate draggable content */
+    user-select: none; /* Prevent text selection while dragging */
+}
+
+
 .previous-operand{
     color: gray;
     font-size: 23px;
+    transition: font-size 0.2s ease; /* Smooth font size adjustment */
 }
 .current-operand{
     color: rgb(255, 255, 255);
     font-size: 60px;
+    transition: font-size 0.2s ease; /* Smooth font size adjustment */
+}
+/* Reduce font size when text overflows */
+.display-container:has(.current-operand:overflowing) .current-operand {
+    font-size: 40px; /* Adjust as needed */
+}
+
+.display-container:has(.previous-operand:overflowing) .previous-operand {
+    font-size: 18px; /* Adjust as needed */
 }
 
 

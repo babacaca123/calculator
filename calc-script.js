@@ -21,6 +21,36 @@ let tokens = [];
 let result = null;
 let equalsPressed = false;
 
+const displayContainer = document.querySelector('.display-container');
+
+let isDragging = false;
+let startX = 0;
+let scrollLeft = 0;
+
+displayContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.pageX - displayContainer.offsetLeft;
+    scrollLeft = displayContainer.scrollLeft;
+    displayContainer.style.cursor = 'grabbing'; // Change cursor to grabbing
+});
+
+displayContainer.addEventListener('mouseleave', () => {
+    isDragging = false;
+    displayContainer.style.cursor = 'grab'; // Reset cursor
+});
+
+displayContainer.addEventListener('mouseup', () => {
+    isDragging = false;
+    displayContainer.style.cursor = 'grab'; // Reset cursor
+});
+
+displayContainer.addEventListener('mousemove', (e) => {
+    if (!isDragging) return; // Only scroll if dragging
+    e.preventDefault();
+    const x = e.pageX - displayContainer.offsetLeft;
+    const walk = (x - startX) * 2; // Adjust scroll speed (2x multiplier)
+    displayContainer.scrollLeft = scrollLeft - walk;
+});
 
 
 buttons.forEach(button => {
@@ -624,4 +654,15 @@ buttons.forEach(button => {
         console.log('Button clicked (last input):', lastInput);
         console.log('All inputs so far:', allInputs);
     });
+});
+
+
+displayContainer.addEventListener('mousedown', (e) => {
+    console.log('Mouse down:', e.pageX);
+});
+displayContainer.addEventListener('mousemove', (e) => {
+    if (isDragging) console.log('Mouse move:', e.pageX);
+});
+displayContainer.addEventListener('mouseup', () => {
+    console.log('Mouse up');
 });
