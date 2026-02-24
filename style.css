@@ -50,6 +50,9 @@ body{
     cursor: grab; /* Indicate that the element can be dragged */
     user-select: none; /* Prevent text selection while dragging */
     flex-shrink: 0;
+
+    width: max-content;
+    transition: none;
 }
 
 /* hide scrollbar (optional) */

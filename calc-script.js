@@ -65,6 +65,7 @@ function scrollToEnd() {
     if (isDragging) return;
     const el = document.querySelector('.current-operand');
     el.scrollLeft = el.scrollWidth;
+    previousDisplay.scrollLeft = previousDisplay.scrollWidth;   
 }
 
 
@@ -73,16 +74,37 @@ enableDragScroll(document.querySelector('.previous-operand'));
 
 
 function adjustFontSize() {
-    const el = document.querySelector('.current-operand');
-    const MIN_FONT_SIZE = 36;
-    let size = 60;
-    el.style.fontSize = size + 'px';
 
-    for (let i = 0; i < 20; i++) {
-        if (el.scrollWidth <= el.clientWidth) break;
-        if (size <= MIN_FONT_SIZE) break;
-        size -= 2;
-        el.style.fontSize = size + 'px';
+
+    const container = document.querySelector('.display-container');
+    const current = document.querySelector('.current-operand');
+
+    const MIN_FONT = 46;
+    const MAX_FONT = 60;
+    const STEP = 7;
+
+    let fontSize = parseFloat(getComputedStyle(current).fontSize);
+
+    if (equalsPressed) {
+        return;
+    }
+
+    // ONLY shrink — never grow
+    if (
+        lastInput !== "⌫" &&
+        current.scrollWidth > container.clientWidth &&
+        fontSize > MIN_FONT
+    ) {
+        fontSize -= STEP;
+        current.style.fontSize = fontSize + 'px';
+    }
+     // Grow back if there's space
+     if (
+        lastInput === "⌫" &&
+        current.scrollWidth < container.clientWidth - 20 &&
+        fontSize < MAX_FONT
+    ) {
+        current.style.fontSize = (fontSize + STEP) + 'px';
     }
 }
 
@@ -246,6 +268,7 @@ function reset(){
     currentNumber = '';
     tokens = [];
     equalsPressed = false;
+    display.style.fontSize = '60px';
     return;
 }
 
@@ -278,26 +301,27 @@ function formatResult(num){
 
 // formats the result to 8 significant figures, removes trailing zeros
 
+
 function addCommas(inputArray) {
     let expression = inputArray.join('');
 
+    // Only add commas to the integer parts of numbers, WITHOUT converting to Number
     return expression.replace(/-?\d+(\.\d+)?/g, function(match) {
         if (match.includes('.')) {
             const [integerPart, decimalPart] = match.split('.');
-            return `${Number(integerPart).toLocaleString('en-US')}.${decimalPart}`;
+            // keep integer part as string and insert commas manually
+            return integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + decimalPart;
         }
-        return Number(match).toLocaleString('en-US');
+        return match.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     });
 }
 
 
 
 
-
-
 function evaluate(tokens){
 
-
+    display.style.fontSize = '60px';
 
 
     for (let i = 0; i < allInputs.length; i ++){
@@ -391,7 +415,6 @@ function evaluate(tokens){
 
 function numberAfterResult(){
     if (equalsPressed){
-        
         if (numbers.includes(lastInput)){
             allInputs = [];
             display.textContent = '';
@@ -460,13 +483,14 @@ buttons.forEach(button => {
               }
               // Check if allInputs contains no binary minuses or operators
 
-
+            
 
             evaluate(tokens);
             console.log("all inputs after evaluation", allInputs);
             equalsPressed = true;
             tokens = [];
             currentNumber = '';
+            scrollToEnd();
             return;
         }
 
@@ -503,6 +527,7 @@ buttons.forEach(button => {
             display.textContent = display.textContent.slice(0, -1);
             allInputs.pop();
 
+            display.textContent = addCommas(allInputs);
 
             if (allInputs.length === 0) {
                 reset();
