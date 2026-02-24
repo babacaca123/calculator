@@ -74,39 +74,32 @@ enableDragScroll(document.querySelector('.previous-operand'));
 
 
 function adjustFontSize() {
-
-
-    const container = document.querySelector('.display-container');
     const current = document.querySelector('.current-operand');
+    const container = current.parentElement; // display-container
+    const minFont = 36; // minimum font size
+    const maxFont = 60; // original font size
 
-    const MIN_FONT = 46;
-    const MAX_FONT = 60;
-    const STEP = 7;
-
+    // start from current font size
     let fontSize = parseFloat(getComputedStyle(current).fontSize);
 
-    if (equalsPressed) {
-        return;
-    }
-
-    // ONLY shrink — never grow
-    if (
-        lastInput !== "⌫" &&
-        current.scrollWidth > container.clientWidth &&
-        fontSize > MIN_FONT
-    ) {
-        fontSize -= STEP;
+    // SHRINK only if text is overflowing
+    while (current.scrollWidth > container.clientWidth && fontSize > minFont) {
+        fontSize -= 1;
         current.style.fontSize = fontSize + 'px';
     }
-     // Grow back if there's space
-     if (
-        lastInput === "⌫" &&
-        current.scrollWidth < container.clientWidth - 20 &&
-        fontSize < MAX_FONT
-    ) {
-        current.style.fontSize = (fontSize + STEP) + 'px';
+
+    // GROW only if text is smaller than container and smaller than max
+    while (current.scrollWidth <= container.clientWidth && fontSize < maxFont) {
+        fontSize += 1;
+        current.style.fontSize = fontSize + 'px';
+        if (current.scrollWidth > container.clientWidth) {
+            fontSize -= 1;
+            current.style.fontSize = fontSize + 'px';
+            break;
+        }
     }
 }
+
 
 
 function isBinaryMinus(index){

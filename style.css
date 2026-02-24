@@ -52,7 +52,7 @@ body{
     flex-shrink: 0;
 
     width: max-content;
-    transition: none;
+    
 }
 
 /* hide scrollbar (optional) */
@@ -65,12 +65,12 @@ body{
 .previous-operand{
     color: gray;
     font-size: 23px;
-    transition: font-size 0.2s ease; /* Smooth font size adjustment */
+    transition: none;
 }
 .current-operand{
     color: rgb(255, 255, 255);
     font-size: 60px;
-    transition: font-size 0.2s ease; /* Smooth font size adjustment */
+    transition: none;
 }
 
 
