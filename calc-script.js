@@ -21,36 +21,401 @@ let tokens = [];
 let result = null;
 let equalsPressed = false;
 
-const displayContainer = document.querySelector('.display-container');
-
 let isDragging = false;
-let startX = 0;
-let scrollLeft = 0;
 
-displayContainer.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startX = e.pageX - displayContainer.offsetLeft;
-    scrollLeft = displayContainer.scrollLeft;
-    displayContainer.style.cursor = 'grabbing'; // Change cursor to grabbing
-});
 
-displayContainer.addEventListener('mouseleave', () => {
-    isDragging = false;
-    displayContainer.style.cursor = 'grab'; // Reset cursor
-});
+// overflow scroll logic for the display container
 
-displayContainer.addEventListener('mouseup', () => {
-    isDragging = false;
-    displayContainer.style.cursor = 'grab'; // Reset cursor
-});
 
-displayContainer.addEventListener('mousemove', (e) => {
-    if (!isDragging) return; // Only scroll if dragging
-    e.preventDefault();
-    const x = e.pageX - displayContainer.offsetLeft;
-    const walk = (x - startX) * 2; // Adjust scroll speed (2x multiplier)
-    displayContainer.scrollLeft = scrollLeft - walk;
-});
+
+
+
+// functions
+
+
+function enableDragScroll(el) {
+    let startX = 0;
+    let startScroll = 0;
+
+    el.addEventListener('mousedown', e => {
+        isDragging = true;
+        startX = e.pageX;
+        startScroll = el.scrollLeft;
+        el.style.cursor = 'grabbing';
+    });
+
+    el.addEventListener('mouseup', () => {
+        isDragging = false;
+        el.style.cursor = 'grab';
+    });
+
+    el.addEventListener('mouseleave', () => {
+        isDragging = false;
+        el.style.cursor = 'grab';
+    });
+
+    el.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        e.preventDefault();
+        el.scrollLeft = startScroll - (e.pageX - startX);
+    });
+}
+
+function scrollToEnd() {
+    if (isDragging) return;
+    const el = document.querySelector('.current-operand');
+    el.scrollLeft = el.scrollWidth;
+}
+
+
+enableDragScroll(document.querySelector('.current-operand'));
+enableDragScroll(document.querySelector('.previous-operand'));
+
+
+function adjustFontSize() {
+    const el = document.querySelector('.current-operand');
+    const MIN_FONT_SIZE = 36;
+    let size = 60;
+    el.style.fontSize = size + 'px';
+
+    for (let i = 0; i < 20; i++) {
+        if (el.scrollWidth <= el.clientWidth) break;
+        if (size <= MIN_FONT_SIZE) break;
+        size -= 2;
+        el.style.fontSize = size + 'px';
+    }
+}
+
+
+function isBinaryMinus(index){
+    return(
+        allInputs[index] === negativeSign &&
+        index > 0 &&
+        !operators.includes(allInputs[index - 1])
+    );
+}
+// returns true if the minus is an operator and not a negative sign
+
+
+
+
+function getCurrentNumberStartIndex(){
+
+      if (allInputs.length === 1) {
+         return 0;
+      }
+     // If allInputs contains only the result, the current number starts at index 0
+
+
+
+    for (let i = allInputs.length - 1; i >= 0; i --){
+
+        if (allInputs[i] === negativeSign &&
+            (i === 0 || operators.includes(allInputs[i - 1]))) 
+            {
+            return i;
+        }
+        if (isBinaryMinus(i)){
+            return i + 1;
+        }
+
+
+        if (operators.includes(allInputs[i])){
+            return i + 1;
+        }
+
+        
+
+    }
+    return 0;
+}
+
+// counting from the end, 
+// if the current index is a negative sign, return that index
+// if the current index is an operator
+// return the index after the operator,
+// if the current index is a minus, return  i  + 1 like an operator
+// if no operators, return 0
+
+
+
+
+
+
+function isStartingNewNum(){
+    if (allInputs.length === 1 && allInputs[0] === zero) return true;
+
+    const start = getCurrentNumberStartIndex();
+    const current = allInputs.slice(start);
+
+    if (current.length === 0) return true;        
+    return false;
+}
+// if all inputs is 0 long or if the current number is 0 long 
+// new num is starting
+
+
+
+
+
+
+function currentNumHasDecimal(){
+    const start = getCurrentNumberStartIndex();
+    return allInputs.slice(start).includes(decimal);
+}
+
+function currentNumIsNegative(){
+    const start = getCurrentNumberStartIndex();
+    return allInputs[start] === negativeSign;
+}
+// if the current number includes decimal / negative sign, return true
+
+
+
+
+
+
+function replaceMinusesWithPlus(){
+
+    for (let i = allInputs.length - 1; i >= 0; i --){
+
+        if (allInputs[i] === negativeSign){
+
+            if ((allInputs[i -1]) === negativeSign){
+                
+                allInputs.splice(i -1, 2, plusSign)
+                
+                display.textContent = 
+                    display.textContent.slice(0, i -1) + 
+                    plusSign + 
+                    display.textContent.slice(i + 1);
+
+                console.log(allInputs)
+            }
+        }
+
+}
+ }
+// replaces two minuses in a row with a plus
+
+
+
+
+
+
+
+ function preventLeadingZeros(){
+
+
+    start = getCurrentNumberStartIndex();
+
+
+    if (display.textContent === zero || 
+
+        (allInputs[start] === zero) && allInputs[start +1] !== decimal ||
+
+        (allInputs[start] === negativeSign) && allInputs[start + 1] === zero &&
+        
+        allInputs[start + 2] !== decimal){
+
+        display.textContent = display.textContent.slice(0, -1);
+        allInputs.pop()
+        display.textContent += lastInput;
+
+        allInputs.push(lastInput);
+        
+        return true;
+
+    }
+
+   return false;
+
+    // replaces initial 0 or leading zero with first number 1-9 input, in the cases 0 or -0
+ }
+
+
+
+
+
+
+
+function reset(){
+    allInputs = ['0'];
+    lastInput = '';
+    display.textContent = zero;
+    currentNumber = '';
+    tokens = [];
+    equalsPressed = false;
+    return;
+}
+
+
+function formatResult(num){
+
+    if(isNaN(num) || !isFinite(num)){
+        return "Error";
+    }
+
+ 
+      const maxSignificantDigits = 10;
+
+     
+      if (Math.abs(num) >= 1e9 || (Math.abs(num) > 0 && Math.abs(num) <= 1e-9)) {
+             return num.toExponential(5).replace("e+", "e");
+       }
+         // Use scientific notation for very large or very small numbers
+     
+            return Number(num.toPrecision(maxSignificantDigits)).toLocaleString('en-US', {
+               maximumFractionDigits: 10, // Limit to 10 decimal places
+               useGrouping: false,       // Disable commas in the raw result
+
+                // Round to the maximum number of significant digits
+         });
+
+
+
+}
+
+// formats the result to 8 significant figures, removes trailing zeros
+
+function addCommas(inputArray) {
+    let expression = inputArray.join('');
+
+    return expression.replace(/-?\d+(\.\d+)?/g, function(match) {
+        if (match.includes('.')) {
+            const [integerPart, decimalPart] = match.split('.');
+            return `${Number(integerPart).toLocaleString('en-US')}.${decimalPart}`;
+        }
+        return Number(match).toLocaleString('en-US');
+    });
+}
+
+
+
+
+
+
+function evaluate(tokens){
+
+
+
+
+    for (let i = 0; i < allInputs.length; i ++){
+
+
+        if (isBinaryMinus(i) || operators.includes(allInputs[i])){
+            tokens.push(Number(currentNumber));
+            tokens.push(allInputs[i]);
+            currentNumber = '';
+        }
+
+        else{
+            currentNumber += allInputs[i];
+            
+        }
+    }
+
+    // adds everything from all inputs into tokens, separating numbers and operators, 
+    // accounting for negative signs
+   
+
+
+    if (currentNumber !== '') {
+     tokens.push(Number(currentNumber));
+     currentNumber = ''; }
+
+     previousDisplay.textContent = addCommas(tokens);
+
+    //  shows the result's equation in the previous display
+
+
+     for (let i = 0; i < tokens.length; i ++){
+      
+        
+        if (tokens[i] === '×' || tokens[i] === '÷' || tokens[i] === '%'){
+
+            const a = tokens[i - 1];
+            const b = tokens[i + 1];
+            const operator = tokens[i];
+
+            if (operator === '×') result = a * b;
+           
+            if (operator === '÷') result = a / b;
+
+            if (operator === '%') result = a % b;
+            
+
+
+            tokens.splice(i - 1, 3, result);
+            i--;
+    }
+
+
+     }
+
+
+     for (let i = 0; i < tokens.length; i ++){
+      
+        
+        if (tokens[i] === '+' || tokens[i] === negativeSign){
+
+            const a = tokens[i - 1];
+            const b = tokens[i + 1];
+            const operator = tokens[i];
+
+            if (operator === '+') result = a + b;
+           
+            if (operator === negativeSign) result = a - b;
+
+            tokens.splice(i - 1, 3, result);
+            i--;
+    }
+
+
+     } 
+
+    //  operates on tokens according to order of operations, combines the results until one result
+
+     const formatted = formatResult(result);
+
+    display.textContent = addCommas([formatted]);
+    
+    allInputs = [formatted];
+
+    
+    
+    
+    
+}
+
+
+function numberAfterResult(){
+    if (equalsPressed){
+        
+        if (numbers.includes(lastInput)){
+            allInputs = [];
+            display.textContent = '';
+            equalsPressed = false;
+        }
+        if (lastInput === decimal){
+            allInputs = [zero, decimal];
+            display.textContent = zero + decimal;
+            equalsPressed = false;
+        }
+        if (lastInput === zero){
+            equalsPressed = false;
+            reset();
+        }
+        else{
+            equalsPressed = false;
+        }
+}
+ }
+
+
+
+
+
 
 
 buttons.forEach(button => {
@@ -66,332 +431,10 @@ buttons.forEach(button => {
 
         // if a number is pressed, replace the reusult 
 
-        function isBinaryMinus(index){
-            return(
-                allInputs[index] === negativeSign &&
-                index > 0 &&
-                !operators.includes(allInputs[index - 1])
-            );
-        }
-        // returns true if the minus is an operator and not a negative sign
-
-
-
-
-        function getCurrentNumberStartIndex(){
-
-              if (allInputs.length === 1) {
-                 return 0;
-              }
-             // If allInputs contains only the result, the current number starts at index 0
-
-
-
-            for (let i = allInputs.length - 1; i >= 0; i --){
-
-                if (allInputs[i] === negativeSign &&
-                    (i === 0 || operators.includes(allInputs[i - 1]))) 
-                    {
-                    return i;
-                }
-                if (isBinaryMinus(i)){
-                    return i + 1;
-                }
-
-
-                if (operators.includes(allInputs[i])){
-                    return i + 1;
-                }
-
-                
-
-            }
-            return 0;
-        }
-
-        // counting from the end, 
-        // if the current index is a negative sign, return that index
-        // if the current index is an operator
-        // return the index after the operator,
-        // if the current index is a minus, return  i  + 1 like an operator
-        // if no operators, return 0
-
-
-
-
-
-
-        function isStartingNewNum(){
-            if (allInputs.length === 1 && allInputs[0] === zero) return true;
-
-            const start = getCurrentNumberStartIndex();
-            const current = allInputs.slice(start);
-
-            if (current.length === 0) return true;        
-            return false;
-        }
-        // if all inputs is 0 long or if the current number is 0 long 
-        // new num is starting
+        adjustFontSize();
+        scrollToEnd();
 
         
-
-
-
-
-        function currentNumHasDecimal(){
-            const start = getCurrentNumberStartIndex();
-            return allInputs.slice(start).includes(decimal);
-        }
-
-        function currentNumIsNegative(){
-            const start = getCurrentNumberStartIndex();
-            return allInputs[start] === negativeSign;
-        }
-        // if the current number includes decimal / negative sign, return true
-
-
-
-
-
-
-        function replaceMinusesWithPlus(){
-
-            for (let i = allInputs.length - 1; i >= 0; i --){
-
-                if (allInputs[i] === negativeSign){
-
-                    if ((allInputs[i -1]) === negativeSign){
-                        
-                        allInputs.splice(i -1, 2, plusSign)
-                        
-                        display.textContent = 
-                            display.textContent.slice(0, i -1) + 
-                            plusSign + 
-                            display.textContent.slice(i + 1);
-
-                        console.log(allInputs)
-                    }
-                }
-
-        }
-         }
-        // replaces two minuses in a row with a plus
-
-
-
-
-
-
-
-         function preventLeadingZeros(){
-
-
-            start = getCurrentNumberStartIndex();
-
-
-            if (display.textContent === zero || 
-
-                (allInputs[start] === zero) && allInputs[start +1] !== decimal ||
-
-                (allInputs[start] === negativeSign) && allInputs[start + 1] === zero &&
-                
-                allInputs[start + 2] !== decimal){
-
-                display.textContent = display.textContent.slice(0, -1);
-                allInputs.pop()
-                display.textContent += lastInput;
-
-                allInputs.push(lastInput);
-                
-                return true;
-
-            }
-
-           return false;
-
-            // replaces initial 0 or leading zero with first number 1-9 input, in the cases 0 or -0
-         }
-
-
-
-
-
-
-
-        function reset(){
-            allInputs = ['0'];
-            lastInput = '';
-            display.textContent = zero;
-            currentNumber = '';
-            tokens = [];
-            equalsPressed = false;
-            return;
-        }
-
-
-        function formatResult(num){
-
-            if(isNaN(num) || !isFinite(num)){
-                return "Error";
-            }
-
-         
-              const maxSignificantDigits = 10;
-
-             
-              if (Math.abs(num) >= 1e9 || (Math.abs(num) > 0 && Math.abs(num) <= 1e-9)) {
-                     return num.toExponential(5).replace("e+", "e");
-               }
-                 // Use scientific notation for very large or very small numbers
-             
-                    return Number(num.toPrecision(maxSignificantDigits)).toLocaleString('en-US', {
-                       maximumFractionDigits: 10, // Limit to 10 decimal places
-                       useGrouping: false,       // Disable commas in the raw result
-
-                        // Round to the maximum number of significant digits
-                 });
-
-
-
-        }
-
-        // formats the result to 8 significant figures, removes trailing zeros
-
-        function addCommas(inputArray) {
-            let expression = inputArray.join('');
-
-            return expression.replace(/-?\d+(\.\d+)?/g, function(match) {
-                if (match.includes('.')) {
-                    const [integerPart, decimalPart] = match.split('.');
-                    return `${Number(integerPart).toLocaleString('en-US')}.${decimalPart}`;
-                }
-                return Number(match).toLocaleString('en-US');
-            });
-        }
-
-
-
-
-
-
-        function evaluate(tokens){
-
-
-
-
-            for (let i = 0; i < allInputs.length; i ++){
-
-
-                if (isBinaryMinus(i) || operators.includes(allInputs[i])){
-                    tokens.push(Number(currentNumber));
-                    tokens.push(allInputs[i]);
-                    currentNumber = '';
-                }
-
-                else{
-                    currentNumber += allInputs[i];
-                    
-                }
-            }
-
-            // adds everything from all inputs into tokens, separating numbers and operators, 
-            // accounting for negative signs
-           
-
-
-            if (currentNumber !== '') {
-             tokens.push(Number(currentNumber));
-             currentNumber = ''; }
-
-             previousDisplay.textContent = addCommas(tokens);
-
-            //  shows the result's equation in the previous display
-
-
-             for (let i = 0; i < tokens.length; i ++){
-              
-                
-                if (tokens[i] === '×' || tokens[i] === '÷' || tokens[i] === '%'){
-
-                    const a = tokens[i - 1];
-                    const b = tokens[i + 1];
-                    const operator = tokens[i];
-
-                    if (operator === '×') result = a * b;
-                   
-                    if (operator === '÷') result = a / b;
-
-                    if (operator === '%') result = a % b;
-                    
-
-
-                    tokens.splice(i - 1, 3, result);
-                    i--;
-            }
-
-
-             }
-
-
-             for (let i = 0; i < tokens.length; i ++){
-              
-                
-                if (tokens[i] === '+' || tokens[i] === negativeSign){
-
-                    const a = tokens[i - 1];
-                    const b = tokens[i + 1];
-                    const operator = tokens[i];
-
-                    if (operator === '+') result = a + b;
-                   
-                    if (operator === negativeSign) result = a - b;
-
-                    tokens.splice(i - 1, 3, result);
-                    i--;
-            }
-
-
-             } 
-
-            //  operates on tokens according to order of operations, combines the results until one result
-
-             const formatted = formatResult(result);
-
-            display.textContent = addCommas([formatted]);
-            
-            allInputs = [formatted];
-        
-            
-            
-            
-            
-        }
-
-
-        function numberAfterResult(){
-            if (equalsPressed){
-                
-                if (numbers.includes(lastInput)){
-                    allInputs = [];
-                    display.textContent = '';
-                    equalsPressed = false;
-                }
-                if (lastInput === decimal){
-                    allInputs = [zero, decimal];
-                    display.textContent = zero + decimal;
-                    equalsPressed = false;
-                }
-                if (lastInput === zero){
-                    equalsPressed = false;
-                    reset();
-                }
-                else{
-                    equalsPressed = false;
-                }
-        }
-         }
-        
-
 
 
         
@@ -615,11 +658,14 @@ buttons.forEach(button => {
             
 
 
-            if (lastInput === zero && isStartingNewNum()) {
+            if (
+                lastInput === zero &&
+                isStartingNewNum() &&
+                allInputs[getCurrentNumberStartIndex()] === zero
+            ) {
                 return;
             }
-
-            //prevents first input being 0 
+            //prevents first input being 0
 
             
 
@@ -648,7 +694,8 @@ buttons.forEach(button => {
 
 
 
-
+        adjustFontSize();
+        scrollToEnd();  
 
         console.log("start is", getCurrentNumberStartIndex())
         console.log('Button clicked (last input):', lastInput);
@@ -656,13 +703,3 @@ buttons.forEach(button => {
     });
 });
 
-
-displayContainer.addEventListener('mousedown', (e) => {
-    console.log('Mouse down:', e.pageX);
-});
-displayContainer.addEventListener('mousemove', (e) => {
-    if (isDragging) console.log('Mouse move:', e.pageX);
-});
-displayContainer.addEventListener('mouseup', () => {
-    console.log('Mouse up');
-});
