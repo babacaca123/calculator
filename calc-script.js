@@ -24,9 +24,6 @@ let equalsPressed = false;
 let isDragging = false;
 
 
-// overflow scroll logic for the display container
-
-
 
 
 
@@ -76,7 +73,7 @@ enableDragScroll(document.querySelector('.previous-operand'));
 function adjustFontSize() {
     const current = document.querySelector('.current-operand');
     const container = current.parentElement; // display-container
-    const minFont = 36; // minimum font size
+    const minFont = 47; // minimum font size
     const maxFont = 60; // original font size
 
     // start from current font size
@@ -99,6 +96,34 @@ function adjustFontSize() {
         }
     }
 }
+
+
+function checkResultLimits(result) {
+    const MAX_DIGITS = 16;           // Max digits for large numbers
+    const MIN_VALUE = 1e-9;          // Min positive value before precision issues
+
+    // Handle extremely large numbers
+    if (Math.abs(result) >= Math.pow(10, MAX_DIGITS)) {
+        display.textContent = "Error";
+       
+        
+        equalsPressed = true;
+        return true; // signal that evaluation should stop
+    }
+
+    // Handle extremely small numbers (except zero)
+    if (Math.abs(result) > 0 && Math.abs(result) < MIN_VALUE) {
+        display.textContent = "Error";
+        
+        
+        return true; // stop further processing
+    }
+
+    return false; // result is safe to continue
+}
+
+
+
 
 
 
@@ -311,6 +336,40 @@ function addCommas(inputArray) {
 
 
 
+function storeResultInAllInputs(result) {
+
+        const MAX_DIGITS = 16;
+
+
+        let rawResultStr = Math.abs(result) < 1e-15 ? "0" : result.toString();
+
+
+        if (rawResultStr.includes("e")) {
+
+            const digitsBeforeDecimal = Math.floor(Math.log10(Math.abs(result))) + 1;
+            const precision = Math.max(MAX_DIGITS - digitsBeforeDecimal, 0);
+            rawResultStr = result.toFixed(precision);
+        }
+
+
+        if (rawResultStr.replace("-", "").replace(".", "").length > MAX_DIGITS) {
+            if (rawResultStr.includes(".")) {
+
+                const [intPart, decPart] = rawResultStr.split(".");
+                const allowedDecimals = Math.max(MAX_DIGITS - intPart.length, 0);
+                rawResultStr = intPart + "." + decPart.slice(0, allowedDecimals);
+            } else {
+
+                rawResultStr = rawResultStr.slice(0, MAX_DIGITS);
+            }
+        }
+
+
+        allInputs = rawResultStr.split("");
+
+}
+
+
 
 function evaluate(tokens){
 
@@ -396,10 +455,9 @@ function evaluate(tokens){
      const formatted = formatResult(result);
 
     display.textContent = addCommas([formatted]);
-    
-    allInputs = [formatted];
-
-    
+    adjustFontSize();
+     checkResultLimits(result);
+    storeResultInAllInputs(result);
     
     
     
@@ -437,11 +495,22 @@ function numberAfterResult(){
 buttons.forEach(button => {
     button.addEventListener('click', () => {
 
-
         
             lastInput = button.textContent;
-        
+
         // lastInput is the text value of the button that was clicked
+         
+
+            if (display.textContent === "Error") {
+                if (button.id !== "Ac-btn") {
+                    return; // ignore everything else
+                }
+            }
+
+        // if error, only clear/delete works
+        
+
+        
 
             numberAfterResult();
 
@@ -534,16 +603,6 @@ buttons.forEach(button => {
         // delete button logic
 
 
-        if (allInputs[0] === "Error"){
-            return;
-        
-        }
-        // if error, only clear/delete works
-
-
-
-
-
         
         
         if (button.id === 'decimal-btn') {
@@ -584,6 +643,8 @@ buttons.forEach(button => {
         
         if (lastInput === plusMinusBtn) {
 
+            
+
             if(isStartingNewNum()) return;
 
             const startIndex = getCurrentNumberStartIndex();
@@ -605,6 +666,7 @@ buttons.forEach(button => {
 
             replaceMinusesWithPlus();
             display.textContent = allInputs.join('');
+            display.textContent = addCommas(allInputs);
 
             // make the display match all inputs
         }
@@ -621,7 +683,7 @@ buttons.forEach(button => {
           
         if (operators.includes(lastInput) || lastInput === negativeSign) {
 
-            
+        
 
             const last = allInputs[allInputs.length - 1];
             let secondLast = null;
@@ -650,6 +712,7 @@ buttons.forEach(button => {
 
             display.textContent += lastInput;
             allInputs.push(lastInput);
+            display.textContent = addCommas(allInputs);
             
         }
         
